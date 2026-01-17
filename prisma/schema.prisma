@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Call {
+  id                String   @id @default(uuid()) @db.Uuid
+  retellCallId      String   @unique @map("retell_call_id") @db.VarChar(255)
+  direction         String   @db.VarChar(20)
+  phoneNumber       String?  @map("phone_number") @db.VarChar(20)
+  customerName      String?  @map("customer_name") @db.VarChar(255)
+  customerEmail     String?  @map("customer_email") @db.VarChar(255)
+  status            String   @default("initiated") @db.VarChar(50)
+  assistantId       String?  @map("assistant_id") @db.VarChar(255)
+  startedAt         DateTime? @map("started_at") @db.Timestamp
+  endedAt           DateTime? @map("ended_at") @db.Timestamp
+  duration          Int?
+  recordingUrl      String?  @map("recording_url") @db.Text
+  transcript        String?  @db.Text
+  summary           String?  @db.Text
+  handoffRequested  Boolean  @default(false) @map("handoff_requested")
+  handoffReason     String?  @map("handoff_reason") @db.Text
+  nkiruTicketId     String?  @map("nkiru_ticket_id") @db.VarChar(255)
+  nkiruTicketNumber String?  @map("nkiru_ticket_number") @db.VarChar(100)
+  clientId          String?  @map("client_id") @db.VarChar(255)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+
+  events CallEvent[]
+
+  @@index([retellCallId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("calls")
+}
+
+model CallEvent {
+  id         String   @id @default(uuid()) @db.Uuid
+  callId     String   @map("call_id") @db.Uuid
+  eventType  String   @map("event_type") @db.VarChar(50)
+  eventData  Json?    @map("event_data")
+  occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamp
+
+  call Call @relation(fields: [callId], references: [id], onDelete: Cascade)
+
+  @@index([callId])
+  @@map("call_events")
+}
+
+model NKIRUFaq {
+  id           String   @id @default(uuid()) @db.Uuid
+  nkiruFaqId   String   @unique @map("nkiru_faq_id") @db.VarChar(255)
+  clientId     String   @map("client_id") @db.VarChar(255)
+  question     String   @db.Text
+  answer       String   @db.Text
+  embeddingId  String?  @map("embedding_id") @db.VarChar(255)
+  lastSyncedAt DateTime @default(now()) @map("last_synced_at") @db.Timestamp
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+
+  @@index([clientId])
+  @@index([lastSyncedAt])
+  @@map("nkiru_faqs")
+}
+
+model ServiceConfig {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique @db.VarChar(100)
+  value       Json
+  description String?  @db.Text
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+
+  @@map("service_config")
+}
