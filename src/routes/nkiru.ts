@@ -80,27 +80,66 @@ router.post(
  * This is the endpoint Retell AI will hit when it needs to create a ticket
  */
 router.post(
-  '/tools/create-support-ticket',
+  '/tools/create-support_ticket',
   asyncHandler(async (req, res) => {
     const { customer_name, email, subject, description, phoneNumber } = req.body;
-    logger.info('Tool Call: create_support_ticket', { customer_name, email, subject });
+    logger.info('Tool Call: create_support_ticket', {
+      customer_name,
+      email,
+      subject,
+      hasDescription: !!description,
+      phoneNumber,
+      fullBody: req.body,
+    });
+
+    // Validate required fields
+    const missingFields: string[] = [];
+    if (!customer_name || customer_name.trim() === '') missingFields.push('customer_name');
+    if (!email || email.trim() === '') missingFields.push('email');
+    if (!phoneNumber || phoneNumber.trim() === '') missingFields.push('phoneNumber');
+    if (!subject || subject.trim() === '') missingFields.push('subject');
+    if (!description || description.trim() === '') missingFields.push('description');
+
+    if (missingFields.length > 0) {
+      const errorMsg = `Missing required fields: ${missingFields.join(', ')}. Please collect all customer information before creating a ticket.`;
+      logger.warn('create_support_ticket called with missing fields', {
+        missingFields,
+        receivedData: req.body,
+      });
+
+      res.json({
+        result: errorMsg,
+        error: 'Missing required customer information',
+        required_fields: ['customer_name', 'email', 'phoneNumber', 'subject', 'description'],
+      });
+      return;
+    }
 
     try {
       const ticket = await ticketService.createTicket({
         customerName: customer_name,
-        email: email || '',
-        phoneNumber: phoneNumber || '',
+        email: email,
+        phoneNumber: phoneNumber,
         subject: subject,
         description: description,
         category: 'voice_call_automation',
       });
 
+      logger.info('Successfully created ticket', {
+        ticketId: ticket.ticketId,
+        customerName: customer_name,
+      });
+
       res.json({
         result: `Successfully created support ticket ${ticket.ticketId}. Inform the customer that their ticket ID is ${ticket.ticketId} and a member of our team will reach out to them shortly.`,
+        ticketId: ticket.ticketId,
       });
     } catch (error) {
-      logger.error('Error in create_support_ticket tool', { error });
-      res.status(500).json({ error: 'Failed to create support ticket' });
+      logger.error('Error in create_support_ticket tool', { error, requestBody: req.body });
+      res.status(500).json({
+        error: 'Failed to create support ticket',
+        result: 'I apologize, but I encountered an error creating your support ticket. Please try again or contact our support team directly.',
+      });
     }
     return;
   })

@@ -99,7 +99,7 @@ Your service URL will be something like:
 {
   "name": "search_knowledge_base",
   "description": "Search the company's knowledge base to answer customer questions. Use this when the customer asks about products, services, pricing, policies, or any information that might be in the knowledge base.",
-  "url": "https://YOUR-DEPLOYMENT-URL/api/v1/nkiru/tools/search-knowledge-base",
+  "url": "https://ai-deck.onrender.com/api/v1/nkiru/tools/search-knowledge-base",
   "method": "POST",
   "parameters": {
     "type": "object",
@@ -124,7 +124,7 @@ Your service URL will be something like:
 {
   "name": "create_support_ticket",
   "description": "Create a support ticket in NKIRU when you cannot help the customer or they request human assistance. Always collect customer name, contact info, and describe their issue.",
-  "url": "https://YOUR-DEPLOYMENT-URL/api/v1/nkiru/tools/create-support-ticket",
+  "url": "https://ai-deck.onrender.com/api/v1/nkiru/tools/create-support-ticket",
   "method": "POST",
   "parameters": {
     "type": "object",
@@ -179,29 +179,44 @@ Example flow:
 
 ---
 
-## 📊 Phase 3: Sync Real FAQs from NKIRU (30 mins)
+## 📊 Phase 3: Sync Real FAQs from NKIRU (10 mins)
 
-### 3.1: Test NKIRU API Connection
+### 3.1: Configure NKIRU API Credentials
+
+Make sure your `.env` file has:
 
 ```bash
-# Test getting FAQs from NKIRU
-curl -X GET https://stage-api.withnkiru.com/faq \
-  -H "Authorization: Bearer YOUR_NKIRU_API_KEY"
+NKIRU_API_KEY=your_actual_nkiru_api_key
+NKIRU_API_BASE_URL=https://stage-api.withnkiru.com
 ```
 
 ### 3.2: Run Real FAQ Sync
 
-Once you confirm the API works:
-
 ```bash
-# This will fetch FAQs from NKIRU and sync to Pinecone
+# Option 1: Using the sync script (Recommended)
+pnpm sync:faqs
+
+# Option 2: Using API endpoint (while server is running)
 curl -X POST http://localhost:7720/api/v1/nkiru/faqs/sync
 
-# Or set up automatic sync
-# Add to .env:
+# Option 3: Enable automatic sync (add to .env)
 FAQ_SYNC_ENABLED=true
 FAQ_SYNC_INTERVAL_HOURS=24
 ```
+
+### 3.3: Verify Sync
+
+```bash
+# Check FAQs in database
+curl http://localhost:7720/api/v1/nkiru/faqs
+
+# Test knowledge base search
+curl -X POST http://localhost:7720/api/v1/nkiru/tools/search-knowledge-base \
+  -H "Content-Type: application/json" \
+  -d '{"query": "your question here"}'
+```
+
+**📖 Detailed Guide:** See `docs/NKIRU_FAQ_SYNC.md`
 
 ### 3.3: Set Up Cron Job (Optional)
 

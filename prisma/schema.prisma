@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "darwin-arm64"]
 }
 
 datasource db {
@@ -11,27 +12,27 @@ datasource db {
 }
 
 model Call {
-  id                String   @id @default(uuid()) @db.Uuid
-  retellCallId      String   @unique @map("retell_call_id") @db.VarChar(255)
-  direction         String   @db.VarChar(20)
-  phoneNumber       String?  @map("phone_number") @db.VarChar(20)
-  customerName      String?  @map("customer_name") @db.VarChar(255)
-  customerEmail     String?  @map("customer_email") @db.VarChar(255)
-  status            String   @default("initiated") @db.VarChar(50)
-  assistantId       String?  @map("assistant_id") @db.VarChar(255)
+  id                String    @id @default(uuid()) @db.Uuid
+  retellCallId      String    @unique @map("retell_call_id") @db.VarChar(255)
+  direction         String    @db.VarChar(20)
+  phoneNumber       String?   @map("phone_number") @db.VarChar(20)
+  customerName      String?   @map("customer_name") @db.VarChar(255)
+  customerEmail     String?   @map("customer_email") @db.VarChar(255)
+  status            String    @default("initiated") @db.VarChar(50)
+  assistantId       String?   @map("assistant_id") @db.VarChar(255)
   startedAt         DateTime? @map("started_at") @db.Timestamp
   endedAt           DateTime? @map("ended_at") @db.Timestamp
   duration          Int?
-  recordingUrl      String?  @map("recording_url") @db.Text
-  transcript        String?  @db.Text
-  summary           String?  @db.Text
-  handoffRequested  Boolean  @default(false) @map("handoff_requested")
-  handoffReason     String?  @map("handoff_reason") @db.Text
-  nkiruTicketId     String?  @map("nkiru_ticket_id") @db.VarChar(255)
-  nkiruTicketNumber String?  @map("nkiru_ticket_number") @db.VarChar(100)
-  clientId          String?  @map("client_id") @db.VarChar(255)
-  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp
-  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+  recordingUrl      String?   @map("recording_url") @db.Text
+  transcript        String?   @db.Text
+  summary           String?   @db.Text
+  handoffRequested  Boolean   @default(false) @map("handoff_requested")
+  handoffReason     String?   @map("handoff_reason") @db.Text
+  nkiruTicketId     String?   @map("nkiru_ticket_id") @db.VarChar(255)
+  nkiruTicketNumber String?   @map("nkiru_ticket_number") @db.VarChar(100)
+  clientId          String?   @map("client_id") @db.VarChar(255)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamp
+  updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp
 
   events CallEvent[]
 

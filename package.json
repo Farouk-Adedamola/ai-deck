@@ -25,6 +25,7 @@
     "db:verify": "bash scripts/verify-db-connection.sh",
     "setup:assistant": "ts-node scripts/setup-assistant.ts",
     "mock:sync": "ts-node scripts/mock-sync-faqs.ts",
+    "sync:faqs": "ts-node scripts/sync-real-faqs.ts",
     "test:pinecone": "ts-node scripts/test-pinecone.ts"
   },
   "keywords": [
