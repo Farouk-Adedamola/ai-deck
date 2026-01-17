@@ -80,7 +80,7 @@ router.post(
  * This is the endpoint Retell AI will hit when it needs to create a ticket
  */
 router.post(
-  '/tools/create-support_ticket',
+  '/tools/create-support-ticket',
   asyncHandler(async (req, res) => {
     const { customer_name, email, subject, description, phoneNumber } = req.body;
     logger.info('Tool Call: create_support_ticket', {
