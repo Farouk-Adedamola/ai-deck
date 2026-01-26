@@ -3,37 +3,31 @@ import { asyncHandler } from '../utils/errors';
 import { prisma } from '../config/database';
 import { logger } from '../utils/logger';
 import { config } from '../config';
-import crypto from 'crypto';
+import Retell from 'retell-sdk';
 
 const router: Router = Router();
-
-/**
- * Verify Retell AI Webhook Signature
- */
-const verifySignature = (payload: string, signature: string, secret: string): boolean => {
-  const expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
-  return expectedSignature === signature;
-};
 
 // Retell AI webhook endpoint
 router.post(
   '/retell',
   asyncHandler(async (req, res) => {
     const signature = req.headers['x-retell-signature'] as string;
-    const webhookSecret = config.webhook.secret;
 
-    // Signature verification (if secret is configured)
-    if (webhookSecret && signature) {
+    // Signature verification using Retell SDK
+    if (config.retell.apiKey && signature) {
       const payload = JSON.stringify(req.body);
-      const isValid = verifySignature(payload, signature, webhookSecret);
+      const isValid = Retell.verify(payload, config.retell.apiKey, signature);
 
       if (!isValid) {
-        logger.warn('Invalid webhook signature received');
-        return res.status(401).json({ error: 'Invalid signature' });
+        logger.warn('Invalid webhook signature received from Retell');
+        return res.status(401).json({ error: 'Unauthorized' });
       }
     }
 
-    const { event, call_id, call } = req.body;
+    // Extract event and call from payload (call_id is inside call object)
+    const { event, call } = req.body;
+    const call_id = call?.call_id;
+
     logger.info(`Received Retell webhook event: ${event}`, { call_id });
 
     // Ensure we have a call_id to work with
@@ -109,8 +103,8 @@ router.post(
       // We still return 200 to Retell to avoid retries if it's a processing error
     }
 
-    // Acknowledge webhook immediately
-    res.status(200).json({ received: true });
+    // Acknowledge webhook immediately (Retell expects 204 No Content)
+    res.status(204).send();
     return;
   })
 );

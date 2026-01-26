@@ -24,7 +24,7 @@ https://your-app.onrender.com/api/v1/nkiru/tools/create-support-ticket
 
 ### Retell Webhook
 ```
-https://your-app.onrender.com/api/v1/webhooks/retell
+https://your-app.onrender.com/webhooks/retell
 ```
 
 **Purpose**: Track call events, save transcripts, link calls to tickets
@@ -79,7 +79,7 @@ https://your-app.onrender.com/api/v1/webhooks/retell
 
 1. In Retell Dashboard → Your Assistant
 2. Look for **"Webhooks"** or **"Events"** section
-3. Add webhook URL: `https://your-app.onrender.com/api/v1/webhooks/retell`
+3. Add webhook URL: `https://your-app.onrender.com/webhooks/retell`
 4. Enable events: `call_started`, `call_ended`, `call_analyzed`
 5. Save
 
@@ -109,7 +109,7 @@ curl -X POST https://YOUR-APP.onrender.com/api/v1/nkiru/tools/create-support-tic
   }'
 
 # Test webhook
-curl -X POST https://YOUR-APP.onrender.com/api/v1/webhooks/retell \
+curl -X POST https://YOUR-APP.onrender.com/webhooks/retell \
   -H "Content-Type: application/json" \
   -d '{
     "event": "call_started",
@@ -180,7 +180,7 @@ Replace `your-app` with your actual Render service name:
 
 - [ ] Function 1: `https://your-app.onrender.com/api/v1/nkiru/tools/search-knowledge-base`
 - [ ] Function 2: `https://your-app.onrender.com/api/v1/nkiru/tools/create-support-ticket`
-- [ ] Webhook: `https://your-app.onrender.com/api/v1/webhooks/retell`
+- [ ] Webhook: `https://your-app.onrender.com/webhooks/retell`
 - [ ] All URLs tested with `curl`
 - [ ] All URLs configured in Retell dashboard
 - [ ] Test call made and logged successfully
